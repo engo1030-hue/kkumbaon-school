@@ -618,6 +618,36 @@
     overflow: hidden;
     border: 1px solid #D6CFC2;
     box-shadow: 0 8px 24px rgba(28, 25, 23, 0.08);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .canvas-wrap:hover {
+    box-shadow: 0 10px 28px rgba(28, 25, 23, 0.15);
+  }
+  .canvas-play-badge {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(28, 25, 23, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #F7F5F0;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1px solid rgba(214, 199, 178, 0.45);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .canvas-wrap:hover .canvas-play-badge {
+    background: #1C1917;
+    border-color: #D6C7B2;
+    transform: scale(1.03);
   }
 
   #storyCanvas {
@@ -1505,13 +1535,13 @@
             </label>
             <button type="button" class="chip-btn" onclick="resetCustomSceneImage()" title="교체한 이미지를 지우고 기본 성화로 되돌립니다">기본 복원</button>
           </div>
-          <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <button type="button" class="chip-btn" id="btnWeekFullVideo" style="background:#1C1917; color:#F7F5F0; border-color:#1C1917; font-weight:600;" onclick="openWeekYoutubeVideo()">전체 성경동화 영상 보기 ▶</button>
-          </div>
         </div>
 
-        <div class="canvas-wrap">
+        <div class="canvas-wrap" onclick="openWeekYoutubeVideo()" title="그림을 터치하면 이번 주 5분 성경동화 영상이 열립니다">
           <canvas id="storyCanvas" width="960" height="540"></canvas>
+          <div class="canvas-play-badge">
+            <span style="color:#D6C7B2; font-size:0.85rem;">▶</span> 터치하여 5분 성경동화 영상 보기
+          </div>
         </div>
 
         <!-- 1주차 12컷 전용 칩 네비게이션 -->
@@ -5378,23 +5408,14 @@ function renderStoryView() {
 
   renderCut12Buttons();
 
-  const btnFullVideo = document.getElementById('btnWeekFullVideo');
-  if (btnFullVideo) {
+  const playBadge = document.querySelector('.canvas-play-badge');
+  if (playBadge) {
     if (w.week === 1) {
-      btnFullVideo.textContent = '전체 동화 영상 (4분 26초)';
-      btnFullVideo.style.opacity = '1.0';
-      btnFullVideo.style.borderColor = '#D6C7B2';
-      btnFullVideo.style.color = '#57534E';
+      playBadge.innerHTML = '<span style="color:#D6C7B2; font-size:0.85rem;">▶</span> 터치하여 1주차 5분 성경동화 영상 보기';
     } else if (hasSpecificWeekVideo(w.week)) {
-      btnFullVideo.textContent = `${w.week}주차 말씀 동화 영상`;
-      btnFullVideo.style.opacity = '1.0';
-      btnFullVideo.style.borderColor = '#785C38';
-      btnFullVideo.style.color = '#57534E';
+      playBadge.innerHTML = `<span style="color:#D6C7B2; font-size:0.85rem;">▶</span> 터치하여 ${w.week}주차 말씀 영상 보기`;
     } else {
-      btnFullVideo.textContent = `${w.week}주차 동화 영상 (준비 중)`;
-      btnFullVideo.style.opacity = '0.75';
-      btnFullVideo.style.borderColor = '#E2DDD3';
-      btnFullVideo.style.color = '#78716C';
+      playBadge.innerHTML = `<span style="color:#D6C7B2; font-size:0.85rem;">▶</span> 터치하여 꿈바온 유튜브 채널 영상 보기`;
     }
   }
 
