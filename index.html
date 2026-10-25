@@ -815,12 +815,15 @@
     display: block;
   }
 
-  /* 탭 3: 30초 기록 쇼츠 스튜디오 */
+  /* 탭 3: 우리들 영상 만들기 (추억 영상 스튜디오) */
   .photo-slots-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     margin-top: 10px;
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 4px;
   }
 
   .photo-slot {
@@ -847,10 +850,19 @@
 
   .shorts-scene-bar {
     display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-bottom: 12px;
+    gap: 5px;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 4px 2px 8px 2px;
+    margin-bottom: 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .shorts-scene-bar::-webkit-scrollbar {
+    height: 4px;
+  }
+  .shorts-scene-bar::-webkit-scrollbar-thumb {
+    background: #D6C7B2;
+    border-radius: 4px;
   }
 
   .shorts-scene-btn {
@@ -1229,7 +1241,7 @@
       2. 이번 주 말씀 동화 · 공과
     </button>
     <button type="button" class="tab-btn" id="tabBtn3" onclick="switchStudioTab(3)">
-      3. 주일학교 기록 영상
+      3. 우리들 영상 만들기
     </button>
   </nav>
 
@@ -1639,16 +1651,16 @@
   </section>
 
   <!-- ===================================================================== -->
-  <!-- TAB 3: 주일학교 기록 영상 (30초 쇼츠) -->
+  <!-- TAB 3: 우리들 영상 만들기 (추억 영상 스튜디오) -->
   <!-- ===================================================================== -->
   <section id="tabPanel3" class="tab-panel">
     <div class="welcome-strip">
       <div>
-        <h1>주일학교 기록 영상 스튜디오</h1>
-        <p>예배와 분반 모임의 순간(3–6장)을 차분한 시네마틱 무빙과 피아노 선율에 담아 30초 세로 영상으로 기록합니다.</p>
+        <h1>우리들 영상 만들기 스튜디오</h1>
+        <p>예배와 분반 모임의 순간(3–20장)을 차분한 시네마틱 무빙과 피아노 선율에 담아 품격 있는 세로 추억 영상으로 기록합니다.</p>
       </div>
       <div class="badge-group">
-        <span class="pill-badge">9:16 세로 영상 (30.0초)</span>
+        <span class="pill-badge" id="shortsDurationBadge">9:16 세로 추억 영상 (30초 / 60초)</span>
         <span class="pill-badge">시네마틱 무빙 · 1.5초 안착</span>
         <span class="pill-badge">피아노 · 오르골 배경음악</span>
       </div>
@@ -1658,17 +1670,26 @@
       <!-- 왼쪽: 사진 업로드 & 자막·음악 설정 -->
       <div class="card">
         <div class="card-title">
-          <span><span class="step-tag">01</span>사진 선택 및 주제 설정</span>
-          <button type="button" class="chip-btn" onclick="resetDefaultShortsPhotos()">기본 일러스트 6장 복원</button>
+          <span><span class="step-tag">01</span>사진 선택 및 영상 설정</span>
+          <button type="button" class="chip-btn" onclick="resetDefaultShortsPhotos()">기본 일러스트 복원</button>
+        </div>
+
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label">영상 길이 선택</label>
+          <div class="chip-row" id="shortsDurationChips">
+            <button type="button" class="chip-btn active" id="btnDur30" onclick="setShortsDurationMode(30)">⏱️ 30초 모드 (3~8장 추천 · 1.5초 안착)</button>
+            <button type="button" class="chip-btn" id="btnDur60" onclick="setShortsDurationMode(60)">⏱️ 60초 롱버전 (10~20장 대용량 추천 · 1분 앨범)</button>
+          </div>
         </div>
 
         <div style="background:#FAF8F4; border:1px dashed #B89B72; border-radius:8px; padding:18px; text-align:center; margin-bottom:16px;">
           <label style="cursor:pointer; display:block;">
             <div style="font-family:var(--font-serif); font-size:0.96rem; font-weight:700; color:var(--text-dark); margin-bottom:4px;">
-              이곳을 눌러 학급 사진(3–6장)을 선택해 주세요
+              📸 이곳을 눌러 우리 반 사진(3–20장)을 선택해 주세요
             </div>
-            <div style="font-size:0.8rem; color:var(--text-soft);">
-              사진을 선택하지 않은 상태에서도 기본 일러스트 6장으로 미리보기 및 영상 제작이 가능합니다.
+            <div style="font-size:0.8rem; color:var(--text-soft); line-height:1.45;">
+              사진 최대 20장까지 선택 가능 · 기기 내 100% 자동 압축 최적화 (서버 부하 0% · 메모리 안전)<br>
+              <span style="color:#785C38; font-weight:600;">※ 스마트폰 원본 고화질 사진도 브라우저 메모리에 무리 없이 자동 리사이징됩니다.</span>
             </div>
             <input type="file" id="shortsPhotoInput" accept="image/*" multiple style="display:none;" onchange="handleShortsPhotoUpload(event)">
           </label>
@@ -1695,7 +1716,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="shortsEndingMsg">엔딩 맺음말 (27초–30초 노출)</label>
+          <label class="form-label" for="shortsEndingMsg">엔딩 맺음말</label>
           <input type="text" id="shortsEndingMsg" class="form-input" value="주님의 은혜 안에서 평안한 한 주 보내기를 기도합니다." oninput="drawShortsFrameAt(shortsCurrentTime)">
         </div>
 
@@ -1733,23 +1754,14 @@
         <div class="photo-slots-grid" id="shortsSlotsContainer"></div>
       </div>
 
-      <!-- 오른쪽: 9:16 세로 쇼츠 미리보기 & 30초 렌더링 -->
+      <!-- 오른쪽: 9:16 세로 영상 미리보기 & 렌더링 -->
       <div class="card">
         <div class="card-title" style="margin-bottom:10px;">
-          <span>9:16 세로 영상 미리보기 (30.0초)</span>
+          <span id="shortsPreviewTitle">9:16 세로 영상 미리보기 (30.0초)</span>
           <span id="shortsTimerLabel" style="font-family:var(--font-sans); font-size:0.84rem; color:var(--primary-dark); font-weight:700;">00.0초 / 30.0초</span>
         </div>
 
-        <div class="shorts-scene-bar" id="shortsSceneNavBar">
-          <button type="button" class="shorts-scene-btn" id="sNavBtn_open" onclick="jumpToShortsScene('open')">오프닝</button>
-          <button type="button" class="shorts-scene-btn active" id="sNavBtn_0" onclick="jumpToShortsScene(0)">컷 1</button>
-          <button type="button" class="shorts-scene-btn" id="sNavBtn_1" onclick="jumpToShortsScene(1)">컷 2</button>
-          <button type="button" class="shorts-scene-btn" id="sNavBtn_2" onclick="jumpToShortsScene(2)">컷 3</button>
-          <button type="button" class="shorts-scene-btn" id="sNavBtn_3" onclick="jumpToShortsScene(3)">컷 4</button>
-          <button type="button" class="shorts-scene-btn" id="sNavBtn_4" onclick="jumpToShortsScene(4)">컷 5</button>
-          <button type="button" class="shorts-scene-btn" id="sNavBtn_5" onclick="jumpToShortsScene(5)">컷 6</button>
-          <button type="button" class="shorts-scene-btn" id="sNavBtn_end" onclick="jumpToShortsScene('end')">엔딩</button>
-        </div>
+        <div class="shorts-scene-bar" id="shortsSceneNavBar"></div>
 
         <div class="shorts-stage-wrap">
           <canvas id="shortsCanvas" width="720" height="1280"></canvas>
@@ -1775,11 +1787,11 @@
         </div>
 
         <div class="btn-grid-2" style="margin-top:14px;">
-          <button type="button" class="action-btn btn-amber" id="btnRecord30s" onclick="startShortsVideoExport(30)">
-            30초 본편 영상 저장
+          <button type="button" class="action-btn btn-amber" id="btnRecordMain" onclick="startShortsVideoExport(shortsTargetDuration)">
+            우리들 영상 저장 (30초)
           </button>
           <button type="button" class="action-btn btn-sky" id="btnRecord6s" onclick="startShortsVideoExport(6)">
-            6초 미리보기 영상 저장
+            6초 맛보기 영상 저장
           </button>
         </div>
       </div>
@@ -4334,8 +4346,9 @@ const WEEK1_CUTS = [
   { cut: 12, sceneGroup: 3, title: "12컷 · [축복과 파송] 새해 찬란한 빛을 향해 동행하는 새 길", desc: "광야에 길을 내시는 하나님과 함께 2027년 힘차게 출발하는 우리 반 어린이들!", src: "images_work/week_01_scene_12.png", line: "images_work/week_01_scene_12_line.png" }
 ];
 
-// 추억 쇼츠(탭 3) 상태
+// 우리들 영상 만들기(탭 3) 상태
 let shortsPhotos = []; // [{img: HTMLCanvasElement|HTMLImageElement, caption: string, motion: string}]
+let shortsTargetDuration = 30.0; // 30초 또는 60초
 let shortsCurrentTime = 0.0;
 let shortsIsPlaying = false;
 let shortsAnimFrameId = null;
@@ -6740,6 +6753,39 @@ function stopPreviewBgm() {
   }
 }
 
+function setShortsDurationMode(sec, silent = false) {
+  shortsTargetDuration = sec;
+  const btn30 = document.getElementById('btnDur30');
+  const btn60 = document.getElementById('btnDur60');
+  if (btn30) btn30.classList.toggle('active', sec === 30);
+  if (btn60) btn60.classList.toggle('active', sec === 60);
+
+  const badge = document.getElementById('shortsDurationBadge');
+  if (badge) badge.textContent = `9:16 세로 추억 영상 (${sec}.0초)`;
+
+  const prevTitle = document.getElementById('shortsPreviewTitle');
+  if (prevTitle) prevTitle.textContent = `9:16 세로 영상 미리보기 (${sec}.0초)`;
+
+  const slider = document.getElementById('shortsSeekSlider');
+  if (slider) slider.max = sec;
+
+  const btnRecord = document.getElementById('btnRecordMain');
+  if (btnRecord) btnRecord.textContent = `우리들 영상 저장 (${sec}초)`;
+
+  if (shortsCurrentTime > sec) {
+    shortsCurrentTime = 0.0;
+  }
+
+  updateShortsTimerUI();
+  drawShortsFrameAt(shortsCurrentTime, sec);
+  renderShortsSceneNavBar();
+  updateActiveShortsSceneUI(shortsCurrentTime);
+
+  if (!silent) {
+    showToast(`🎬 [우리들 영상] ${sec}초 모드로 전환되었습니다!`);
+  }
+}
+
 function resetDefaultShortsPhotos() {
   const preset = SHORTS_PRESET_CAPTIONS[currentShortsPresetKey] || SHORTS_PRESET_CAPTIONS.sunday;
   const motions = ['zoomIn', 'zoomOut', 'panRight', 'zoomIn', 'panLeft', 'zoomOut'];
@@ -6748,10 +6794,12 @@ function resetDefaultShortsPhotos() {
     caption: cap,
     motion: motions[i % motions.length]
   }));
+  shortsTargetDuration = 30.0;
   shortsCurrentTime = 3.8;
   currentActiveShortsScene = 0;
+  renderShortsSceneNavBar();
   renderShortsSlotsUI();
-  drawShortsFrameAt(shortsCurrentTime);
+  drawShortsFrameAt(shortsCurrentTime, shortsTargetDuration);
   updateShortsTimerUI();
   updateActiveShortsSceneUI(shortsCurrentTime);
 
@@ -6763,7 +6811,7 @@ function resetDefaultShortsPhotos() {
       if (shortsPhotos[idx]) {
         shortsPhotos[idx].img = img;
         renderShortsSlotsUI();
-        drawShortsFrameAt(shortsCurrentTime);
+        drawShortsFrameAt(shortsCurrentTime, shortsTargetDuration);
       }
     };
     img.src = `images_work/week_01_scene_${num}.png`;
@@ -6776,47 +6824,123 @@ function applyShortsPreset(key) {
   document.getElementById('shortsMainTitle').value = preset.title;
   document.getElementById('shortsEndingMsg').value = preset.ending;
   shortsPhotos.forEach((slot, i) => {
-    slot.caption = preset.captions[i % preset.captions.length];
+    slot.caption = preset.captions[i % preset.captions.length] || preset.captions[0];
   });
   renderShortsSlotsUI();
-  drawShortsFrameAt(shortsCurrentTime);
+  drawShortsFrameAt(shortsCurrentTime, shortsTargetDuration);
   updateActiveShortsSceneUI(shortsCurrentTime);
-  showToast('✨ 선택한 테마로 쇼츠 제목과 6장면 자막(선희간사님 내레이션 연동)이 입력되었습니다!');
+  showToast('✨ 선택한 테마로 우리들 영상 제목과 장면 자막이 입력되었습니다!');
 }
 
-function handleShortsPhotoUpload(event) {
-  const files = Array.from(event.target.files || []);
-  if (!files.length) return;
-  const motions = ['zoomIn', 'zoomOut', 'panRight', 'zoomIn', 'panLeft', 'zoomOut'];
-  const presetCaps = (SHORTS_PRESET_CAPTIONS[currentShortsPresetKey] || SHORTS_PRESET_CAPTIONS.sunday).captions;
-  let loadedCount = 0;
-  const newPhotos = [];
-
-  files.slice(0, 8).forEach((file, idx) => {
+// 클라이언트 기기 내 고속 리사이징 & 압축 (서버 부하 0% + 브라우저 메모리 완벽 보호!)
+function compressImageFile(file, maxDimension = 1440, quality = 0.85) {
+  return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        newPhotos[idx] = {
-          img: img,
-          caption: (shortsPhotos[idx] && shortsPhotos[idx].caption) || presetCaps[idx % presetCaps.length],
-          motion: motions[idx % motions.length]
-        };
-        loadedCount++;
-        if (loadedCount === Math.min(files.length, 8)) {
-          shortsPhotos = newPhotos.filter(Boolean);
-          while (shortsPhotos.length < 3) {
-            shortsPhotos.push({ ...shortsPhotos[shortsPhotos.length - 1] });
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDimension || h > maxDimension) {
+          if (w >= h) {
+            h = Math.round((h * maxDimension) / w);
+            w = maxDimension;
+          } else {
+            w = Math.round((w * maxDimension) / h);
+            h = maxDimension;
           }
-          renderShortsSlotsUI();
-          jumpToShortsScene(0, true);
-          showToast(`📸 아이들 사진 ${files.length}장이 추억 쇼츠 스튜디오에 등록되었습니다!`);
         }
+        const c = document.createElement('canvas');
+        c.width = w;
+        c.height = h;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const optImg = new Image();
+        optImg.onload = () => resolve(optImg);
+        optImg.src = c.toDataURL('image/jpeg', quality);
       };
+      img.onerror = () => resolve(null);
       img.src = e.target.result;
     };
+    reader.onerror = () => resolve(null);
     reader.readAsDataURL(file);
   });
+}
+
+async function handleShortsPhotoUpload(event) {
+  const files = Array.from(event.target.files || []);
+  if (!files.length) return;
+
+  const targetFiles = files.slice(0, 20); // 최대 20장
+  showToast(`📸 사진 ${targetFiles.length}장을 기기에서 안전하게 압축 최적화하고 있습니다...`);
+
+  const motions = ['zoomIn', 'zoomOut', 'panRight', 'zoomIn', 'panLeft', 'zoomOut', 'panRight', 'zoomIn'];
+  const presetCaps = (SHORTS_PRESET_CAPTIONS[currentShortsPresetKey] || SHORTS_PRESET_CAPTIONS.sunday).captions;
+
+  const optimizedImgs = await Promise.all(targetFiles.map(f => compressImageFile(f)));
+  const validImgs = optimizedImgs.filter(Boolean);
+
+  if (!validImgs.length) {
+    showToast('⚠️ 사진을 불러오지 못했습니다. 다른 이미지 파일을 선택해 주세요.');
+    return;
+  }
+
+  shortsPhotos = validImgs.map((img, idx) => ({
+    img: img,
+    caption: (shortsPhotos[idx] && shortsPhotos[idx].caption) || presetCaps[idx % presetCaps.length] || `우리 반 은혜로운 시간 (${idx + 1})`,
+    motion: motions[idx % motions.length]
+  }));
+
+  while (shortsPhotos.length < 3) {
+    shortsPhotos.push({ ...shortsPhotos[shortsPhotos.length - 1] });
+  }
+
+  // 9장 이상이면 자동으로 60초 롱버전 모드로 전환, 8장 이하면 30초 모드
+  if (shortsPhotos.length >= 9) {
+    setShortsDurationMode(60, true);
+    showToast(`📸 우리 반 사진 ${shortsPhotos.length}장이 등록되어 [60초 대용량 앨범 모드]로 자동 최적화되었습니다!`);
+  } else {
+    setShortsDurationMode(30, true);
+    showToast(`📸 우리 반 사진 ${shortsPhotos.length}장이 등록되어 [30초 모드]로 최적화되었습니다!`);
+  }
+
+  renderShortsSceneNavBar();
+  renderShortsSlotsUI();
+  jumpToShortsScene(0, true);
+}
+
+function renderShortsSceneNavBar() {
+  const navBar = document.getElementById('shortsSceneNavBar');
+  if (!navBar) return;
+  navBar.innerHTML = '';
+
+  const openBtn = document.createElement('button');
+  openBtn.type = 'button';
+  openBtn.className = 'shorts-scene-btn' + (currentActiveShortsScene === 'open' ? ' active' : '');
+  openBtn.id = 'sNavBtn_open';
+  openBtn.textContent = '오프닝';
+  openBtn.onclick = () => jumpToShortsScene('open');
+  navBar.appendChild(openBtn);
+
+  const nPhotos = (shortsPhotos && shortsPhotos.length) ? shortsPhotos.length : 6;
+  for (let i = 0; i < nPhotos; i++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'shorts-scene-btn' + (currentActiveShortsScene === i ? ' active' : '');
+    btn.id = `sNavBtn_${i}`;
+    btn.textContent = `컷 ${i + 1}`;
+    const cutIdx = i;
+    btn.onclick = () => jumpToShortsScene(cutIdx);
+    navBar.appendChild(btn);
+  }
+
+  const endBtn = document.createElement('button');
+  endBtn.type = 'button';
+  endBtn.className = 'shorts-scene-btn' + (currentActiveShortsScene === 'end' ? ' active' : '');
+  endBtn.id = 'sNavBtn_end';
+  endBtn.textContent = '엔딩';
+  endBtn.onclick = () => jumpToShortsScene('end');
+  navBar.appendChild(endBtn);
 }
 
 function renderShortsSlotsUI() {
@@ -6848,9 +6972,9 @@ function renderShortsSlotsUI() {
     rightDiv.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
         <span style="font-size:0.78rem; font-weight:700; color:#44403C;">컷 ${idx + 1} · 장면 선택</span>
-        <span style="font-size:0.7rem; font-weight:600; color:#6E5434; background:#F3EFE6; padding:1px 7px; border-radius:4px; border:1px solid #D6C7B2;">무빙 · 1.5초 안착</span>
+        <span style="font-size:0.7rem; font-weight:600; color:#6E5434; background:#F3EFE6; padding:1px 7px; border-radius:4px; border:1px solid #D6C7B2;">무빙 · 안착</span>
       </div>
-      <input type="text" class="form-input" style="padding:6px 9px; font-size:0.83rem;" value="${slot.caption.replace(/"/g, '&quot;')}" onfocus="jumpToShortsScene(${idx}, true)" oninput="updateSlotCaption(${idx}, this.value)">
+      <input type="text" class="form-input" style="padding:6px 9px; font-size:0.83rem;" value="${(slot.caption || '').replace(/"/g, '&quot;')}" onfocus="jumpToShortsScene(${idx}, true)" oninput="updateSlotCaption(${idx}, this.value)">
     `;
     div.appendChild(thumbCanvas);
     div.appendChild(rightDiv);
@@ -6862,9 +6986,11 @@ function updateSlotCaption(idx, val) {
   if (shortsPhotos[idx]) {
     shortsPhotos[idx].caption = val;
     const nPhotos = shortsPhotos.length || 6;
-    const slotDur = 24.0 / nPhotos;
-    shortsCurrentTime = 3.0 + idx * slotDur + slotDur * 0.5;
-    drawShortsFrameAt(shortsCurrentTime);
+    const openEnd = 2.6;
+    const bodyEnd = shortsTargetDuration - 2.6;
+    const slotDur = (bodyEnd - openEnd) / nPhotos;
+    shortsCurrentTime = openEnd + idx * slotDur + slotDur * 0.5;
+    drawShortsFrameAt(shortsCurrentTime, shortsTargetDuration);
     updateShortsTimerUI();
     updateActiveShortsSceneUI(shortsCurrentTime);
   }
@@ -6872,9 +6998,9 @@ function updateSlotCaption(idx, val) {
 
 function getShortsSceneFromTime(tSec) {
   if (tSec < 2.6) return 'open';
-  if (tSec >= 27.4) return 'end';
+  if (tSec >= (shortsTargetDuration - 2.6)) return 'end';
   const nPhotos = (shortsPhotos && shortsPhotos.length) ? shortsPhotos.length : 6;
-  const slotDur = 24.8 / nPhotos;
+  const slotDur = (shortsTargetDuration - 5.2) / nPhotos;
   return Math.min(nPhotos - 1, Math.max(0, Math.floor((tSec - 2.6) / slotDur)));
 }
 
@@ -6882,24 +7008,26 @@ function updateActiveShortsSceneUI(tSec) {
   const sceneKey = getShortsSceneFromTime(tSec);
   currentActiveShortsScene = sceneKey;
 
-  const navKeys = ['open', 0, 1, 2, 3, 4, 5, 'end'];
-  navKeys.forEach(k => {
-    const btn = document.getElementById('sNavBtn_' + k);
-    if (btn) btn.classList.toggle('active', k === sceneKey);
-  });
+  const nPhotos = (shortsPhotos && shortsPhotos.length) ? shortsPhotos.length : 6;
+  const navOpen = document.getElementById('sNavBtn_open');
+  if (navOpen) navOpen.classList.toggle('active', sceneKey === 'open');
+  const navEnd = document.getElementById('sNavBtn_end');
+  if (navEnd) navEnd.classList.toggle('active', sceneKey === 'end');
 
-  if (shortsPhotos && shortsPhotos.length) {
-    shortsPhotos.forEach((_, idx) => {
-      const card = document.getElementById('shortsSlotCard_' + idx);
-      if (card) card.classList.toggle('active', idx === sceneKey);
-    });
+  for (let i = 0; i < nPhotos; i++) {
+    const btn = document.getElementById(`sNavBtn_${i}`);
+    if (btn) btn.classList.toggle('active', sceneKey === i);
+    const card = document.getElementById(`shortsSlotCard_${i}`);
+    if (card) card.classList.toggle('active', sceneKey === i);
   }
 }
 
 function jumpToShortsScene(sceneKey, silent = false) {
   if (shortsIsPlaying) stopShortsPreview();
   const nPhotos = (shortsPhotos && shortsPhotos.length) ? shortsPhotos.length : 6;
-  const slotDur = 24.8 / nPhotos;
+  const openEnd = 2.6;
+  const bodyEnd = shortsTargetDuration - 2.6;
+  const slotDur = (bodyEnd - openEnd) / nPhotos;
 
   let targetT = 0.8;
   let label = '🌟 오프닝 타이틀';
@@ -6907,25 +7035,26 @@ function jumpToShortsScene(sceneKey, silent = false) {
     targetT = 1.0;
     label = '🌟 오프닝 타이틀';
   } else if (sceneKey === 'end') {
-    targetT = 28.6;
+    targetT = shortsTargetDuration - 1.2;
     label = '🙏 엔딩 축복 카드';
   } else {
     const idx = Math.min(nPhotos - 1, Math.max(0, parseInt(sceneKey, 10) || 0));
-    targetT = 2.6 + idx * slotDur + slotDur * 0.55;
+    targetT = openEnd + idx * slotDur + slotDur * 0.55;
     label = `📸 컷 ${idx + 1}`;
   }
 
   shortsCurrentTime = targetT;
-  drawShortsFrameAt(shortsCurrentTime);
+  drawShortsFrameAt(shortsCurrentTime, shortsTargetDuration);
   updateShortsTimerUI();
   updateActiveShortsSceneUI(shortsCurrentTime);
   if (!silent) {
-    showToast(`🎬 [${label}] 장면으로 미리보기 화면이 전환되었습니다!`);
+    showToast(`🎬 [${label}] 장면으로 화면이 전환되었습니다!`);
   }
 }
 
 function prevShortsScene() {
-  const order = ['open', 0, 1, 2, 3, 4, 5, 'end'];
+  const nPhotos = (shortsPhotos && shortsPhotos.length) ? shortsPhotos.length : 6;
+  const order = ['open', ...Array.from({ length: nPhotos }, (_, i) => i), 'end'];
   const cur = getShortsSceneFromTime(shortsCurrentTime);
   const idx = order.indexOf(cur);
   const prevKey = order[(idx - 1 + order.length) % order.length];
@@ -6933,23 +7062,23 @@ function prevShortsScene() {
 }
 
 function nextShortsScene() {
-  const order = ['open', 0, 1, 2, 3, 4, 5, 'end'];
+  const nPhotos = (shortsPhotos && shortsPhotos.length) ? shortsPhotos.length : 6;
+  const order = ['open', ...Array.from({ length: nPhotos }, (_, i) => i), 'end'];
   const cur = getShortsSceneFromTime(shortsCurrentTime);
   const idx = order.indexOf(cur);
   const nextKey = order[(idx + 1) % order.length];
   jumpToShortsScene(nextKey);
 }
 
-// 30.0초 타임라인 프레임 렌더러 (꿈바온 철칙: 무빙 후 마지막 1.5초 쿠션 홀드 완전 정지!)
-function drawShortsFrameAt(tSec, totalDuration = 30.0) {
+// 우리들 영상 타임라인 프레임 렌더러 (꿈바온 철칙: 무빙 후 마지막 안착 홀드 완전 정지!)
+function drawShortsFrameAt(tSec, totalDuration = shortsTargetDuration) {
   const canvas = document.getElementById('shortsCanvas');
   if (!canvas || !shortsPhotos.length) return;
   const ctx = canvas.getContext('2d');
   const W = canvas.width;   // 720
   const H = canvas.height;  // 1280
 
-  const timeScale = 30.0 / totalDuration;
-  const virtualT = Math.min(30.0, Math.max(0.0, tSec * timeScale));
+  const virtualT = Math.min(totalDuration, Math.max(0.0, tSec));
 
   const themeKey = document.getElementById('shortsFrameTheme').value || 'sunshine';
   const themes = {
@@ -6983,8 +7112,8 @@ function drawShortsFrameAt(tSec, totalDuration = 30.0) {
 
   const nPhotos = shortsPhotos.length;
   const openEnd = 2.6;
-  const bodyEnd = 27.4;
-  const bodyDuration = bodyEnd - openEnd; // 24.8s
+  const bodyEnd = totalDuration - 2.6;
+  const bodyDuration = Math.max(1.0, bodyEnd - openEnd);
   const slotDur = bodyDuration / nPhotos;
 
   // 사진 표시 영역 (폴라로이드 프레임: x=52, y=145, w=616, h=820)
@@ -6997,7 +7126,7 @@ function drawShortsFrameAt(tSec, totalDuration = 30.0) {
   ctx.clip();
 
   if (virtualT < openEnd) {
-    // [0.0s ~ 2.6s] 오프닝 4분할 콜라주 대표 커버 (컷 1과 완전히 다른 화면으로 시각적 구분!)
+    // [0.0s ~ 2.6s] 오프닝 4분할 콜라주 대표 커버
     const halfW = pw / 2;
     const halfH = ph / 2;
     for (let q = 0; q < 4; q++) {
@@ -7026,42 +7155,43 @@ function drawShortsFrameAt(tSec, totalDuration = 30.0) {
     ctx.fillStyle = th.accent;
     ctx.font = 'bold 22px "Pretendard", "Apple SD Gothic Neo", sans-serif';
     ctx.textAlign = 'center';
-    fillTextSafe(ctx, '🌟 우리 반 30초 추억 앨범 🌟', W / 2, py + ph / 2 - 52, pw - 100);
+    fillTextSafe(ctx, `🌟 우리 반 ${Math.round(totalDuration)}초 추억 앨범 🌟`, W / 2, py + ph / 2 - 52, pw - 100);
     ctx.fillStyle = th.text;
     ctx.font = 'bold 31px "Pretendard", "Apple SD Gothic Neo", sans-serif';
     wrapCanvasText(ctx, mainTitle, W / 2, py + ph / 2 + 2, pw - 105, 42, 2);
   } else if (virtualT < bodyEnd) {
-    // [2.6s ~ 27.4s] 본문 추억 사진 6컷 릴레이 + 무빙 후 마지막 1.5초 안착(Cushion Hold)!
+    // 본문 추억 사진 릴레이 + 무빙 후 안착(Cushion Hold)!
     const relT = virtualT - openEnd;
     const slotIdx = Math.min(nPhotos - 1, Math.floor(relT / slotDur));
     const localT = relT - slotIdx * slotDur;
-    // 마지막 1.5초는 완전 정지(Cushion Hold)!
-    const moveWindow = Math.max(0.8, slotDur - 1.5);
+    const holdSec = Math.min(1.5, Math.max(0.6, slotDur * 0.4));
+    const moveWindow = Math.max(0.6, slotDur - holdSec);
     const moveProgress = Math.min(1.0, localT / moveWindow);
     const easedP = 1 - Math.pow(1 - moveProgress, 2.5);
 
     const curSlot = shortsPhotos[slotIdx];
     drawImageWithCushionMotion(ctx, curSlot.img, px, py, pw, ph, easedP, curSlot.motion);
 
-    // 이전 컷에서 넘어올 때 첫 0.42초 슬라이드+크로스페이드 전환 효과
-    if (localT < 0.42 && slotIdx > 0) {
+    // 이전 컷에서 넘어올 때 첫 0.35초 슬라이드+크로스페이드 전환 효과
+    const trDur = Math.min(0.38, slotDur * 0.25);
+    if (localT < trDur && slotIdx > 0) {
       const prevSlot = shortsPhotos[slotIdx - 1];
-      const trP = localT / 0.42;
+      const trP = localT / trDur;
       ctx.save();
       ctx.globalAlpha = 1.0 - trP;
       drawImageWithCushionMotion(ctx, prevSlot.img, px - trP * 45, py, pw, ph, 1.0, prevSlot.motion);
       ctx.restore();
     }
 
-    // 우측 상단 모션 상태 표시 배지 (무빙 중 vs 1.5초 안착 홀드 중)
+    // 우측 상단 모션 상태 표시 배지
     const isHolding = localT >= moveWindow;
     drawRoundedRect(ctx, px + pw - 195, py + 22, 172, 38, 6, isHolding ? 'rgba(28, 25, 23, 0.85)' : 'rgba(120, 92, 56, 0.85)', '#D6C7B2', 1);
     ctx.fillStyle = '#F7F5F0';
     ctx.font = 'bold 15px "Pretendard", "Apple SD Gothic Neo", sans-serif';
     ctx.textAlign = 'center';
-    fillTextSafe(ctx, isHolding ? '1.5초 안착 홀드' : `컷 ${slotIdx + 1} 무빙`, px + pw - 109, py + 46, 155);
+    fillTextSafe(ctx, isHolding ? '안착 홀드 중' : `컷 ${slotIdx + 1} 무빙`, px + pw - 109, py + 46, 155);
   } else {
-    // [27.4s ~ 30.0s] 엔딩 축복 메시지 카드
+    // 엔딩 축복 메시지 카드
     const lastSlot = shortsPhotos[nPhotos - 1] || shortsPhotos[0];
     drawImageWithCushionMotion(ctx, lastSlot.img, px, py, pw, ph, 1.0, 'zoomIn');
     ctx.fillStyle = 'rgba(28, 25, 23, 0.48)';
@@ -7090,7 +7220,7 @@ function drawShortsFrameAt(tSec, totalDuration = 30.0) {
     wrapCanvasText(ctx, mainTitle, W / 2, 1086, W - 140, 38, 2);
   } else if (virtualT < bodyEnd) {
     const slotIdx = Math.min(nPhotos - 1, Math.floor((virtualT - openEnd) / slotDur));
-    const cap = shortsPhotos[slotIdx].caption || '';
+    const cap = (shortsPhotos[slotIdx] && shortsPhotos[slotIdx].caption) || '';
     ctx.fillStyle = th.accent;
     ctx.font = 'bold 18px "Pretendard", "Apple SD Gothic Neo", sans-serif';
     fillTextSafe(ctx, `장면 기록 · 컷 ${slotIdx + 1} / ${nPhotos}`, W / 2, 1038, W - 140);
@@ -7100,7 +7230,7 @@ function drawShortsFrameAt(tSec, totalDuration = 30.0) {
   } else {
     ctx.fillStyle = th.accent;
     ctx.font = 'bold 18px "Pretendard", "Apple SD Gothic Neo", sans-serif';
-    fillTextSafe(ctx, '엔딩 맺음말 (27.4–30.0초)', W / 2, 1038, W - 140);
+    fillTextSafe(ctx, `엔딩 맺음말 (${bodyEnd.toFixed(1)}–${totalDuration.toFixed(1)}초)`, W / 2, 1038, W - 140);
     ctx.fillStyle = th.text;
     ctx.font = 'bold 24px "Noto Serif KR", "Pretendard", serif';
     wrapCanvasText(ctx, endingMsg, W / 2, 1084, W - 140, 38, 2);
@@ -7151,12 +7281,12 @@ function toggleShortsPreview() {
 }
 
 function startShortsPreview() {
-  // 재생 버튼을 누를 때 끝에 있거나 기본 컷 미리보기 위치(3.8초)에 있으면 0초부터 전체 30초 연속 재생!
-  if (shortsCurrentTime >= 29.0 || Math.abs(shortsCurrentTime - 3.8) < 0.05) {
+  if (shortsCurrentTime >= (shortsTargetDuration - 1.0) || Math.abs(shortsCurrentTime - 3.8) < 0.05) {
     shortsCurrentTime = 0.0;
   }
   shortsIsPlaying = true;
-  document.getElementById('shortsPlayBtn').textContent = '⏸️ 일시정지';
+  const playBtn = document.getElementById('shortsPlayBtn');
+  if (playBtn) playBtn.textContent = '⏸️ 일시정지';
   shortsLastTick = performance.now();
 
   stopSunhiAudio();
@@ -7169,7 +7299,7 @@ function startShortsPreview() {
     if (AudioCtx) {
       previewBgmCtx = new AudioCtx();
       const dummyDest = previewBgmCtx.createGain();
-      startSynthesizedBgm(previewBgmCtx, dummyDest, 30.0 - shortsCurrentTime, bgmStyle === 'sunhi_piano' ? 'piano' : bgmStyle);
+      startSynthesizedBgm(previewBgmCtx, dummyDest, shortsTargetDuration - shortsCurrentTime, bgmStyle === 'sunhi_piano' ? 'piano' : bgmStyle);
     }
   } catch (e) {}
 
@@ -7185,15 +7315,15 @@ function startShortsPreview() {
     const dt = (now - shortsLastTick) / 1000.0;
     shortsLastTick = now;
     shortsCurrentTime += dt;
-    if (shortsCurrentTime >= 30.0) {
-      shortsCurrentTime = 30.0;
-      drawShortsFrameAt(shortsCurrentTime);
+    if (shortsCurrentTime >= shortsTargetDuration) {
+      shortsCurrentTime = shortsTargetDuration;
+      drawShortsFrameAt(shortsCurrentTime, shortsTargetDuration);
       updateShortsTimerUI();
       updateActiveShortsSceneUI(shortsCurrentTime);
       stopShortsPreview();
       return;
     }
-    drawShortsFrameAt(shortsCurrentTime);
+    drawShortsFrameAt(shortsCurrentTime, shortsTargetDuration);
     updateShortsTimerUI();
     updateActiveShortsSceneUI(shortsCurrentTime);
     shortsAnimFrameId = requestAnimationFrame(step);
@@ -7212,14 +7342,19 @@ function stopShortsPreview() {
 
 function seekShortsPreview(val) {
   shortsCurrentTime = parseFloat(val) || 0;
-  drawShortsFrameAt(shortsCurrentTime);
+  drawShortsFrameAt(shortsCurrentTime, shortsTargetDuration);
   updateShortsTimerUI();
   updateActiveShortsSceneUI(shortsCurrentTime);
 }
 
 function updateShortsTimerUI() {
-  document.getElementById('shortsTimerLabel').textContent = `${shortsCurrentTime.toFixed(1).padStart(4, '0')}초 / 30.0초`;
-  document.getElementById('shortsSeekSlider').value = shortsCurrentTime;
+  const lbl = document.getElementById('shortsTimerLabel');
+  if (lbl) lbl.textContent = `${shortsCurrentTime.toFixed(1).padStart(4, '0')}초 / ${shortsTargetDuration.toFixed(1)}초`;
+  const sl = document.getElementById('shortsSeekSlider');
+  if (sl) {
+    sl.max = shortsTargetDuration;
+    sl.value = shortsCurrentTime;
+  }
 }
 
 function handleCustomAudioUpload(event) {
@@ -7227,7 +7362,7 @@ function handleCustomAudioUpload(event) {
   if (!file) return;
   customAudioFileUrl = URL.createObjectURL(file);
   document.getElementById('shortsBgmSelect').value = 'custom';
-  showToast(`🎵 내 음악/음성 파일(${file.name})이 쇼츠 배경음으로 설정되었습니다!`);
+  showToast(`🎵 내 음악/음성 파일(${file.name})이 영상 배경음으로 설정되었습니다!`);
 }
 
 // WebAudio API 내장 BGM 합성기 (저작권 걱정 0% + 마지막 1.8초 페이드아웃!)
@@ -7243,7 +7378,6 @@ function startSynthesizedBgm(audioCtx, destNode, durationSec, style) {
 
   const masterGain = audioCtx.createGain();
   masterGain.gain.setValueAtTime(0.22, now);
-  // 엔딩 1.8초 부드러운 페이드아웃 (Rule 22 & 23)
   const fadeStart = now + Math.max(0.5, durationSec - 1.8);
   masterGain.gain.setValueAtTime(0.22, fadeStart);
   masterGain.gain.linearRampToValueAtTime(0.0001, now + durationSec);
@@ -7282,10 +7416,10 @@ function startSynthesizedBgm(audioCtx, destNode, durationSec, style) {
   }
 }
 
-// 30초 (또는 6초 맛보기) 실제 쇼츠 동영상 파일 렌더링 & 다운로드
-function startShortsVideoExport(durationSec = 30) {
+// 실제 우리들 영상 동영상 파일 렌더링 & 다운로드 (기본 30초 또는 60초)
+function startShortsVideoExport(durationSec = shortsTargetDuration) {
   if (shortsIsRecording) {
-    showToast('현재 쇼츠 영상을 만들고 있습니다. 잠시만 기다려 주세요!');
+    showToast('현재 우리들 영상을 만들고 있습니다. 잠시만 기다려 주세요!');
     return;
   }
   stopShortsPreview();
@@ -7301,7 +7435,7 @@ function startShortsVideoExport(durationSec = 30) {
   const pctEl = document.getElementById('shortsRenderPercent');
   const barEl = document.getElementById('shortsRenderBar');
 
-  statusEl.textContent = `🎬 ${durationSec}초 추억 쇼츠 영상을 구워내고 있습니다... (화면과 음악 합성 중)`;
+  statusEl.textContent = `🎬 ${durationSec}초 우리들 영상을 구워내고 있습니다... (화면과 음악 합성 중)`;
   pctEl.textContent = '0%';
   barEl.style.width = '0%';
 
@@ -7366,13 +7500,13 @@ function startShortsVideoExport(durationSec = 30) {
     const a = document.createElement('a');
     const dept = (document.getElementById('shortsDeptBadge').value || '우리반').replace(/[^가-힣a-zA-Z0-9]/g, '_');
     a.href = url;
-    a.download = `우리반_${dept}_추억쇼츠_${durationSec}초.${ext}`;
+    a.download = `우리반_${dept}_우리들영상_${durationSec}초.${ext}`;
     a.click();
 
-    statusEl.textContent = `✅ 완성! [우리반_${dept}_추억쇼츠_${durationSec}초.${ext}] 파일이 다운로드되었습니다!`;
+    statusEl.textContent = `✅ 완성! [우리반_${dept}_우리들영상_${durationSec}초.${ext}] 파일이 다운로드되었습니다!`;
     pctEl.textContent = '100%';
     barEl.style.width = '100%';
-    showToast(`🎉 ${durationSec}초 추억 쇼츠 영상 파일이 성공적으로 저장되었습니다!`);
+    showToast(`🎉 ${durationSec}초 우리들 영상 파일이 성공적으로 저장되었습니다!`);
   };
 
   recorder.start(200);
