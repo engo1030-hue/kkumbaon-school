@@ -1332,7 +1332,7 @@
           <input type="text" id="pubNotice" class="form-input" value="성경책과 필기도구를 지참해 주세요. 다음 주일 오전 10시 50분에 예배실에서 모입니다." oninput="updateMobilePreview()">
         </div>
 
-        <div class="form-group" style="background:#FAF8F4; padding:12px 14px; border-radius:8px; border:1px solid var(--border-warm);">
+        <div class="form-group" style="display:none;">
           <label class="form-label" for="pubYoutubeUrl">이번 주 말씀 동화 영상 주소</label>
           <input type="url" id="pubYoutubeUrl" class="form-input" value="https://www.youtube.com/@dreaming_ondal" placeholder="예: https://youtu.be/영상주소" oninput="saveCustomWeekYoutubeUrl(this.value)">
         </div>
@@ -1767,7 +1767,6 @@
         <h3 id="modalVideoTitle" style="font-family:var(--font-serif); font-size:1.2rem; font-weight:700; color:#1C1917; margin-top:4px;">광야에 새 길을 여시는 하나님 (이사야 43장 19절)</h3>
       </div>
       <div style="display:flex; gap:8px; align-items:center;">
-        <button type="button" class="chip-btn" onclick="promptWeekYoutubeUrl()">유튜브 주소 변경</button>
         <a id="modalExternalYtBtn" href="https://www.youtube.com/@dreaming_ondal" target="_blank" rel="noopener noreferrer" class="action-btn btn-amber" style="padding:7px 14px; font-size:0.82rem; text-decoration:none;">
           유튜브 새 창 열기
         </a>
@@ -1789,8 +1788,8 @@
     </div>
 
     <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:0.82rem; color:var(--text-soft);">
-      <span id="modalVideoSubInfo">구연동화 내레이션 · 피아노 찬양 연주 · 시네마틱 무빙 및 1.5초 안착 적용</span>
-      <span style="font-weight:600; color:var(--primary-dark);">주차별 유튜브 주소를 등록하면 해당 영상으로 자동 연결됩니다</span>
+      <span id="modalVideoSubInfo">유튜브 공식 플레이어로 스트리밍 재생 중입니다</span>
+      <span style="font-weight:600; color:var(--primary-dark);">꿈바온 5분 성경동화 애니메이션</span>
     </div>
   </div>
 </div>
