@@ -1841,6 +1841,7 @@ const WEEKS_2027 = [
     "cat": "q1",
     "title": "광야에 새 길을 여시는 하나님",
     "ref": "이사야 43장 19절",
+    "youtubeUrl": "https://www.youtube.com/watch?v=6_leGvSjNfo",
     "verse": "보라 내가 새 일을 행하리니 이제 나타낼 것이라 너희가 그것을 알지 못하겠느냐 반드시 내가 광야에 길을 사막에 강을 내리니",
     "easyVerse": "하나님께서 새해에 우리를 위해 깜짝 놀랄 새로운 길을 활짝 열어 주시고, 메마른 땅에도 시원한 강물을 흘려보내 주신대요!",
     "theme": "river_desert",
@@ -4431,11 +4432,13 @@ function selectDepartment(dept) {
 const DEFAULT_KKUMBAON_YT = 'https://www.youtube.com/@dreaming_ondal';
 
 function getWeekYoutubeUrl(weekNum) {
+  const w = Number(weekNum) || (currentWeekIndex + 1);
+  if (w === 1) return 'https://www.youtube.com/watch?v=6_leGvSjNfo';
   try {
     const saved = JSON.parse(localStorage.getItem('kkumbaon_week_yt_urls') || '{}');
-    if (saved && saved[weekNum]) return saved[weekNum];
+    if (saved && saved[w]) return saved[w];
   } catch (e) {}
-  const wObj = WEEKS_2027[weekNum - 1];
+  const wObj = WEEKS_2027[w - 1];
   return (wObj && wObj.youtubeUrl) ? wObj.youtubeUrl : DEFAULT_KKUMBAON_YT;
 }
 
