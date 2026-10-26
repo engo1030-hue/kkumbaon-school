@@ -1684,10 +1684,11 @@
         </div>
 
         <div class="form-group" style="margin-bottom:12px;">
-          <label class="form-label">영상 길이 선택</label>
+          <label class="form-label">영상 길이 선택 (음성 파일 업로드 시 자동 맞춤)</label>
           <div class="chip-row" id="shortsDurationChips">
-            <button type="button" class="chip-btn active" id="btnDur30" onclick="setShortsDurationMode(30)">⏱️ 30초 모드 (3~8장 추천 · 1.5초 안착)</button>
-            <button type="button" class="chip-btn" id="btnDur60" onclick="setShortsDurationMode(60)">⏱️ 60초 롱버전 (10~20장 대용량 추천 · 1분 앨범)</button>
+            <button type="button" class="chip-btn active" id="btnDur30" onclick="setShortsDurationMode(30)">⏱️ 30초 모드 (3~8장 추천)</button>
+            <button type="button" class="chip-btn" id="btnDur60" onclick="setShortsDurationMode(60)">⏱️ 60초 롱버전 (10~20장 추천)</button>
+            <button type="button" class="chip-btn" id="btnDurCustomAudio" style="display:none;" onclick="applyCustomAudioDuration()">🎵 음성 맞춤 (<span id="btnDurCustomAudioSec">0</span>초)</button>
           </div>
         </div>
 
@@ -1752,7 +1753,11 @@
         </div>
 
         <div class="form-group" style="margin-bottom:14px;">
-          <label class="form-label" for="customAudioInput">(선택) 사용자 음악 또는 음성 녹음 파일 (MP3/M4A/WAV)</label>
+          <label class="form-label" for="customAudioInput">🎙️ (선택) 선생님 더빙 음성 또는 배경 음악 파일 (MP3/M4A/WAV)
+            <span style="font-size:0.78rem; color:#785C38; font-weight:normal; display:block; margin-top:2px;">
+              ※ 녹음 파일을 올리시면 영상 전체 길이와 사진 전환이 해당 음성 시간(초)에 100% 자동 동기화됩니다.
+            </span>
+          </label>
           <input type="file" id="customAudioInput" accept="audio/*" class="form-input" onchange="handleCustomAudioUpload(event)">
         </div>
 
@@ -1860,9 +1865,15 @@
       </button>
     </div>
 
+    <!-- 스마트폰 저장 핵심 안내 배너 -->
+    <div style="background:#FFF9E6; border:1px solid #E6D08A; border-radius:8px; padding:10px 14px; margin-bottom:12px; font-size:0.86rem; color:#7A5500; font-weight:600; line-height:1.45; text-align:center;">
+      💡 <strong>스마트폰 꿀팁:</strong> 아래 비디오 화면을 <strong>1~2초간 꾹 길게 누르시면</strong><br>
+      휴대폰 메뉴의 <span style="text-decoration:underline;">[동영상 저장]</span> 또는 <span style="text-decoration:underline;">[사진 앱에 저장]</span>으로 바로 저장됩니다!
+    </div>
+
     <!-- 영상 재생 플레이어 (브라우저 내 100% 즉시 감상) -->
     <div style="background:#000; border-radius:10px; overflow:hidden; margin-bottom:14px; box-shadow:0 6px 18px rgba(0,0,0,0.18);">
-      <video id="shortsCompleteVideoPlayer" controls playsinline autoplay style="width:100%; max-height:48vh; display:block; object-fit:contain; background:#000;"></video>
+      <video id="shortsCompleteVideoPlayer" controls playsinline webkit-playsinline autoplay style="width:100%; max-height:48vh; display:block; object-fit:contain; background:#000;"></video>
     </div>
 
     <!-- 큼직한 모바일 최적화 공유 & 다운로드 버튼 -->
@@ -1875,15 +1886,20 @@
         <button type="button" class="action-btn btn-sky" style="padding:10px 14px; font-size:0.88rem;" onclick="downloadShortsVideoFile()">
           💾 파일 다운로드
         </button>
-        <button type="button" class="action-btn btn-outline" style="padding:10px 14px; font-size:0.88rem;" onclick="closeShortsCompleteModal()">
-          닫기
+        <button type="button" class="action-btn btn-outline" style="padding:10px 14px; font-size:0.88rem;" onclick="openVideoInNewTab()">
+          🔗 새 창에서 열기
         </button>
       </div>
+
+      <button type="button" class="action-btn btn-outline" style="padding:8px 14px; font-size:0.85rem; margin-top:2px;" onclick="closeShortsCompleteModal()">
+        창 닫기
+      </button>
     </div>
 
-    <div style="font-size:0.78rem; color:#78716C; margin-top:12px; line-height:1.45; text-align:center; background:#FAF8F4; padding:10px 12px; border-radius:6px; border:1px solid #E7E5E4;">
-      💡 <strong>스마트폰 안내:</strong> 폰에서 다운로드된 파일이 "지원하지 않는 형식"으로 표시될 경우,<br>
-      위의 <strong>[📲 카카오톡 전송 / 갤러리 저장]</strong> 버튼을 누르시면 카카오톡 및 폰 사진첩으로 바로 전송·저장됩니다.
+    <div style="font-size:0.78rem; color:#78716C; margin-top:12px; line-height:1.45; text-align:left; background:#FAF8F4; padding:10px 14px; border-radius:6px; border:1px solid #E7E5E4;">
+      📱 <strong>스마트폰 기기별 저장 안내:</strong><br>
+      • <strong>아이폰(iOS):</strong> 화면 비디오를 꾹 눌러 <strong>[비디오 저장]</strong>을 누르시거나, <strong>[카카오톡 전송]</strong>으로 나에게 보내기 하시면 가장 쉽습니다.<br>
+      • <strong>갤럭시(안드로이드):</strong> <strong>[📲 카카오톡 전송 / 갤러리 저장]</strong>을 누르면 갤러리 또는 카카오톡으로 곧바로 전송·보관됩니다.
     </div>
   </div>
 </div>
@@ -4408,6 +4424,7 @@ let shortsLastTick = 0;
 let shortsIsRecording = false;
 let customAudioBuffer = null;
 let customAudioFileUrl = null;
+let customAudioDuration = null;
 let currentRenderedBlob = null;
 let currentRenderedUrl = null;
 let currentRenderedFilename = '';
@@ -6813,8 +6830,12 @@ function setShortsDurationMode(sec, silent = false) {
   shortsTargetDuration = sec;
   const btn30 = document.getElementById('btnDur30');
   const btn60 = document.getElementById('btnDur60');
-  if (btn30) btn30.classList.toggle('active', sec === 30);
-  if (btn60) btn60.classList.toggle('active', sec === 60);
+  const btnCustom = document.getElementById('btnDurCustomAudio');
+  if (btn30) btn30.classList.toggle('active', sec === 30 && (!customAudioDuration || sec !== customAudioDuration));
+  if (btn60) btn60.classList.toggle('active', sec === 60 && (!customAudioDuration || sec !== customAudioDuration));
+  if (btnCustom && customAudioDuration) {
+    btnCustom.classList.toggle('active', sec === customAudioDuration);
+  }
 
   const badge = document.getElementById('shortsDurationBadge');
   if (badge) badge.textContent = `9:16 세로 추억 영상 (${sec}.0초)`;
@@ -6839,6 +6860,12 @@ function setShortsDurationMode(sec, silent = false) {
 
   if (!silent) {
     showToast(`🎬 [우리들 영상] ${sec}초 모드로 전환되었습니다!`);
+  }
+}
+
+function applyCustomAudioDuration() {
+  if (customAudioDuration && customAudioDuration > 0) {
+    setShortsDurationMode(customAudioDuration);
   }
 }
 
@@ -7369,6 +7396,11 @@ function startShortsPreview() {
     audio.currentTime = Math.min(25, shortsCurrentTime);
     currentSunhiAudio = audio;
     audio.play().catch(() => {});
+  } else if (bgmStyle === 'custom' && customAudioFileUrl) {
+    const audio = new Audio(customAudioFileUrl);
+    audio.currentTime = Math.min(customAudioDuration || 999, shortsCurrentTime);
+    currentSunhiAudio = audio;
+    audio.play().catch(() => {});
   }
 
   const step = (now) => {
@@ -7422,12 +7454,34 @@ function handleCustomAudioUpload(event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
   customAudioFileUrl = URL.createObjectURL(file);
-  document.getElementById('shortsBgmSelect').value = 'custom';
-  showToast(`🎵 내 음악/음성 파일(${file.name})이 영상 배경음으로 설정되었습니다!`);
+  const bgmSel = document.getElementById('shortsBgmSelect');
+  if (bgmSel) bgmSel.value = 'custom';
+
+  const tempAudio = new Audio(customAudioFileUrl);
+  tempAudio.addEventListener('loadedmetadata', () => {
+    const durSec = Math.round(tempAudio.duration);
+    if (durSec && durSec >= 5 && durSec <= 300) {
+      customAudioDuration = durSec;
+      const chipAudio = document.getElementById('btnDurCustomAudio');
+      const secSpan = document.getElementById('btnDurCustomAudioSec');
+      if (chipAudio && secSpan) {
+        secSpan.textContent = durSec;
+        chipAudio.style.display = 'inline-flex';
+      }
+      setShortsDurationMode(durSec, true);
+      showToast(`🎙️ 선생님 음성 파일(${file.name}, ${durSec}초)이 등록되어 영상 길이가 [${durSec}초]로 자동 맞춤되었습니다!`);
+    } else {
+      showToast(`🎵 내 음악/음성 파일(${file.name})이 영상 배경음으로 설정되었습니다!`);
+    }
+  });
+  tempAudio.addEventListener('error', () => {
+    showToast(`🎵 내 음악/음성 파일(${file.name})이 영상 배경음으로 설정되었습니다!`);
+  });
 }
 
 // WebAudio API 내장 BGM 합성기 (저작권 걱정 0% + 마지막 1.8초 페이드아웃!)
 function startSynthesizedBgm(audioCtx, destNode, durationSec, style) {
+  if (!style || style === 'none' || style === 'custom') return;
   const melodyNotes = [
     523.25, 659.25, 783.99, 659.25, 698.46, 880.00, 783.99, 659.25,
     587.33, 698.46, 880.00, 783.99, 659.25, 587.33, 523.25, 659.25
@@ -7477,17 +7531,70 @@ function startSynthesizedBgm(audioCtx, destNode, durationSec, style) {
   }
 }
 
-// 실제 우리들 영상 동영상 파일 렌더링 & 다운로드 (기본 30초 또는 60초)
+// 스마트폰 및 다양한 브라우저 호환성을 위한 4단계 안전 MediaRecorder 생성 함수
+function createSafeMediaRecorder(stream) {
+  const candidates = [
+    'video/mp4;codecs=avc1,mp4a.40.2',
+    'video/mp4;codecs=avc1',
+    'video/mp4',
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm',
+    ''
+  ];
+
+  // 1단계: 지원 MIME + 모바일 안전 비트레이트(3.5Mbps) 시도
+  for (const mime of candidates) {
+    if (!mime || (typeof MediaRecorder.isTypeSupported === 'function' && MediaRecorder.isTypeSupported(mime))) {
+      try {
+        const opts = mime ? { mimeType: mime, videoBitsPerSecond: 3500000 } : {};
+        const rec = new MediaRecorder(stream, opts);
+        return { recorder: rec, mime: mime || rec.mimeType || '' };
+      } catch (err) {}
+    }
+  }
+
+  // 2단계: 비트레이트 없이 MIME 단독 시도
+  for (const mime of candidates) {
+    if (!mime || (typeof MediaRecorder.isTypeSupported === 'function' && MediaRecorder.isTypeSupported(mime))) {
+      try {
+        const opts = mime ? { mimeType: mime } : {};
+        const rec = new MediaRecorder(stream, opts);
+        return { recorder: rec, mime: mime || rec.mimeType || '' };
+      } catch (err) {}
+    }
+  }
+
+  // 3단계: 기본 생성자 시도
+  try {
+    const rec = new MediaRecorder(stream);
+    return { recorder: rec, mime: rec.mimeType || '' };
+  } catch (err) {}
+
+  // 4단계: 오디오 트랙 충돌 가능성 배제 — 비디오 트랙 단독 스트림으로 재시도
+  try {
+    const vTracks = stream.getVideoTracks();
+    if (vTracks && vTracks.length > 0) {
+      const vStream = new MediaStream(vTracks);
+      const rec = new MediaRecorder(vStream);
+      return { recorder: rec, mime: rec.mimeType || '' };
+    }
+  } catch (err) {}
+
+  return { recorder: null, mime: '' };
+}
+
+// 실제 우리들 영상 동영상 파일 렌더링 & 저장 (음성 맞춤 / 30초 / 60초)
 function startShortsVideoExport(durationSec = shortsTargetDuration) {
   if (shortsIsRecording) {
-    showToast('현재 우리들 영상을 만들고 있습니다. 잠시만 기다려 주세요!');
+    showToast('현재 우리들 영상을 제작 중입니다. 잠시만 기다려 주세요!');
     return;
   }
   stopShortsPreview();
 
   const canvas = document.getElementById('shortsCanvas');
   if (!canvas || typeof canvas.captureStream !== 'function' || typeof MediaRecorder === 'undefined') {
-    showToast('이 브라우저에서는 동영상 직접 녹화를 지원하지 않습니다. 크롬/엣지 브라우저를 사용해 주세요.');
+    showToast('현재 모바일 브라우저 환경에서는 직접 비디오 녹화가 제한되어 있습니다. 크롬 또는 사파리 기본 앱으로 접속해 주세요.');
     return;
   }
 
@@ -7503,15 +7610,29 @@ function startShortsVideoExport(durationSec = shortsTargetDuration) {
   const videoStream = canvas.captureStream(30);
   let combinedStream = videoStream;
   let audioCtx = null;
+  const bgmSel = document.getElementById('shortsBgmSelect');
+  const bgmStyle = bgmSel ? bgmSel.value : 'sunhi_piano';
 
   try {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (AudioCtx) {
       audioCtx = new AudioCtx();
       const dest = audioCtx.createMediaStreamDestination();
-      const bgmStyle = document.getElementById('shortsBgmSelect').value || 'sunhi_piano';
-      startSynthesizedBgm(audioCtx, dest, durationSec, bgmStyle === 'sunhi_piano' ? 'piano' : bgmStyle);
-      if (bgmStyle === 'sunhi_piano') {
+
+      if (bgmStyle === 'custom' && customAudioFileUrl) {
+        // 선생님 음성 녹음 파일 믹싱
+        stopSunhiAudio();
+        const customAudio = new Audio(customAudioFileUrl);
+        currentSunhiAudio = customAudio;
+        try {
+          const srcNode = audioCtx.createMediaElementSource(customAudio);
+          srcNode.connect(dest);
+          srcNode.connect(audioCtx.destination);
+        } catch (err) {}
+        customAudio.currentTime = 0;
+        customAudio.play().catch(() => {});
+      } else if (bgmStyle === 'sunhi_piano') {
+        startSynthesizedBgm(audioCtx, dest, durationSec, 'piano');
         stopSunhiAudio();
         const narAudio = new Audio(`audio_sunhi/shorts_${currentShortsPresetKey}.mp3`);
         currentSunhiAudio = narAudio;
@@ -7521,33 +7642,28 @@ function startShortsVideoExport(durationSec = shortsTargetDuration) {
           srcNode.connect(audioCtx.destination);
         } catch (err) {}
         narAudio.play().catch(() => {});
+      } else {
+        startSynthesizedBgm(audioCtx, dest, durationSec, bgmStyle);
       }
-      const tracks = [...videoStream.getVideoTracks(), ...dest.stream.getAudioTracks()];
-      combinedStream = new MediaStream(tracks);
-    }
-  } catch (e) {}
 
-  const mimeCandidates = [
-    'video/mp4;codecs=avc1,mp4a.40.2',
-    'video/mp4;codecs=avc1',
-    'video/mp4',
-    'video/webm;codecs=vp9,opus',
-    'video/webm;codecs=vp8,opus',
-    'video/webm'
-  ];
-  let chosenMime = '';
-  for (const m of mimeCandidates) {
-    if (MediaRecorder.isTypeSupported(m)) {
-      chosenMime = m;
-      break;
+      const aTracks = dest.stream.getAudioTracks();
+      if (aTracks && aTracks.length > 0) {
+        combinedStream = new MediaStream([...videoStream.getVideoTracks(), ...aTracks]);
+      }
     }
+  } catch (e) {
+    console.warn('AudioContext recording stream fallback:', e);
+  }
+
+  const { recorder, mime: chosenMime } = createSafeMediaRecorder(combinedStream);
+  if (!recorder) {
+    shortsIsRecording = false;
+    statusEl.textContent = '⚠️ 영상 녹화 장치를 시작할 수 없습니다. 크롬/사파리 최신 브라우저를 이용해 주세요.';
+    showToast('영상 녹화 장치를 시작할 수 없습니다. 크롬/사파리 최신 브라우저를 이용해 주세요.');
+    return;
   }
 
   const chunks = [];
-  const recorder = chosenMime
-    ? new MediaRecorder(combinedStream, { mimeType: chosenMime, videoBitsPerSecond: 4500000 })
-    : new MediaRecorder(combinedStream);
-
   recorder.ondataavailable = (e) => {
     if (e.data && e.data.size > 0) chunks.push(e.data);
   };
@@ -7557,27 +7673,32 @@ function startShortsVideoExport(durationSec = shortsTargetDuration) {
     if (audioCtx) {
       try { audioCtx.close(); } catch (e) {}
     }
-    const blob = new Blob(chunks, { type: chosenMime || 'video/webm' });
-    const isMp4 = (chosenMime && chosenMime.includes('mp4')) || blob.type.includes('mp4');
+    const finalMime = chosenMime || recorder.mimeType || 'video/mp4';
+    const blob = new Blob(chunks, { type: finalMime });
+    const isMp4 = (finalMime && finalMime.includes('mp4')) || blob.type.includes('mp4');
     const ext = isMp4 ? 'mp4' : 'webm';
     const url = URL.createObjectURL(blob);
     const dept = (document.getElementById('shortsDeptBadge').value || '우리반').replace(/[^가-힣a-zA-Z0-9]/g, '_');
-    const filename = `우리반_${dept}_우리들영상_${durationSec}초.${ext}`;
+    const filename = `우리반_${dept}_추억영상_${durationSec}초.${ext}`;
 
     currentRenderedBlob = blob;
     currentRenderedUrl = url;
     currentRenderedFilename = filename;
-    currentRenderedMime = chosenMime || blob.type || (isMp4 ? 'video/mp4' : 'video/webm');
+    currentRenderedMime = blob.type || (isMp4 ? 'video/mp4' : 'video/webm');
 
     statusEl.textContent = `✅ 완성! [${filename}] 영상이 준비되었습니다!`;
     pctEl.textContent = '100%';
     barEl.style.width = '100%';
 
-    // 🌟 완성 영상 모달 팝업 열기 (인앱 플레이어로 100% 즉시 감상 & 카카오톡/스마트폰 원클릭 공유)
+    // 완성 영상 모달 팝업 열기 (인앱 플레이어로 100% 즉시 감상 & 카카오톡/스마트폰 원클릭 공유)
     openShortsCompleteModal(url, filename, durationSec);
   };
 
-  recorder.start(200);
+  try {
+    recorder.start(200);
+  } catch (err) {
+    recorder.start();
+  }
   const startTime = performance.now();
 
   const renderLoop = (now) => {
@@ -7610,7 +7731,7 @@ function openShortsCompleteModal(url, filename, durationSec) {
   player.play().catch(() => {});
 
   modal.classList.add('show');
-  showToast(`🎉 영상 생성이 완료되었습니다! 화면에서 확인 및 저장하실 수 있습니다.`);
+  showToast(`🎉 영상 제작이 완료되었습니다! 폰에서는 영상을 꾹 누르시거나 [카카오톡 전송]을 이용해 보세요.`);
 }
 
 function closeShortsCompleteModal() {
@@ -7631,14 +7752,16 @@ function handleShortsCompleteModalBackdrop(e) {
 
 async function shareShortsVideo() {
   if (!currentRenderedBlob) {
-    showToast('공유할 영상 파일이 없습니다.');
+    showToast('공유할 영상 파일이 아직 준비되지 않았습니다.');
     return;
   }
 
+  const actualMime = currentRenderedMime || currentRenderedBlob.type || 'video/mp4';
   const file = new File([currentRenderedBlob], currentRenderedFilename || '우리반_추억영상.mp4', {
-    type: currentRenderedMime || 'video/mp4'
+    type: actualMime
   });
 
+  let sharedSuccess = false;
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({
@@ -7646,13 +7769,17 @@ async function shareShortsVideo() {
         title: '우리 반 추억 영상',
         text: '말씀 안에서 자라가는 우리 반의 은혜로운 추억 영상입니다.'
       });
-      showToast('🎉 카카오톡/스마트폰 공유가 완료되었습니다!');
+      sharedSuccess = true;
+      showToast('🎉 카카오톡 / 휴대폰 저장이 완료되었습니다!');
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        downloadShortsVideoFile();
+      if (err.name === 'AbortError') {
+        return; // 사용자가 창을 닫은 경우
       }
     }
-  } else {
+  }
+
+  if (!sharedSuccess) {
+    // Web Share 미지원 환경: 직접 파일 다운로드 및 새 창 열기 병행
     downloadShortsVideoFile();
   }
 }
@@ -7664,8 +7791,18 @@ function downloadShortsVideoFile() {
   a.download = currentRenderedFilename || '우리반_추억영상.mp4';
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
-  showToast(`💾 [${currentRenderedFilename}] 파일 다운로드가 시작되었습니다!`);
+  setTimeout(() => {
+    try { document.body.removeChild(a); } catch (e) {}
+  }, 300);
+  showToast(`💾 [${currentRenderedFilename}] 다운로드를 시도합니다. (폰에서는 영상을 길게 꾹 누르셔도 저장됩니다!)`);
+}
+
+function openVideoInNewTab() {
+  if (!currentRenderedUrl) {
+    showToast('재생할 영상이 없습니다.');
+    return;
+  }
+  window.open(currentRenderedUrl, '_blank');
 }
 
 // URL 해시(#view?w=1&d=elem 또는 #card=...)로 공유된 모바일 알림장 자동 복원 및 ?mode=line&cut=N 파라미터 지원
