@@ -245,9 +245,16 @@
     align-items: start;
   }
 
-  @media (max-width: 1080px) {
+  @media (max-width: 1180px) {
     .grid-2col, .grid-story {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 1240px) {
+    #tabPanel3 .grid-2col {
+      grid-template-columns: 1fr !important;
+      gap: 20px;
     }
   }
 
@@ -818,10 +825,10 @@
   /* 탭 3: 우리들 영상 만들기 (추억 영상 스튜디오) */
   .photo-slots-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 12px;
     margin-top: 10px;
-    max-height: 480px;
+    max-height: 520px;
     overflow-y: auto;
     padding-right: 4px;
   }
@@ -830,12 +837,14 @@
     background: #FAF9F6;
     border: 1px solid var(--border-warm);
     border-radius: 8px;
-    padding: 10px;
+    padding: 10px 12px;
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
     cursor: pointer;
     transition: all 0.18s ease;
+    min-width: 270px; /* 화면 축소 시 글자 세로 줄바꿈 방지를 위한 최소 너비 고정 */
+    box-sizing: border-box;
   }
 
   .photo-slot:hover {
@@ -1832,6 +1841,49 @@
     <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:0.82rem; color:var(--text-soft);">
       <span id="modalVideoSubInfo">유튜브 공식 플레이어로 스트리밍 재생 중입니다</span>
       <span style="font-weight:600; color:var(--primary-dark);">꿈바온 5분 성경동화 애니메이션</span>
+    </div>
+  </div>
+</div>
+
+<!-- 우리들 영상 제작 완료 모달 (스마트폰 인앱 재생 & 카톡/갤러리 원클릭 공유) -->
+<div class="video-modal-backdrop" id="shortsCompleteModal" onclick="handleShortsCompleteModalBackdrop(event)">
+  <div class="video-modal-card" style="max-width:480px; text-align:center;">
+    <div class="video-modal-header" style="justify-content:space-between; align-items:center; border-bottom:1px solid #E7E5E4; padding-bottom:12px; margin-bottom:14px;">
+      <div>
+        <span class="step-tag" style="background:#F3EFE6; color:#785C38;">우리들 영상 완성</span>
+        <h3 id="completeModalTitle" style="font-family:var(--font-serif); font-size:1.15rem; font-weight:700; color:#1C1917; margin-top:4px;">
+          우리 반 추억 영상이 완성되었습니다!
+        </h3>
+      </div>
+      <button type="button" class="action-btn btn-outline" style="padding:6px 14px; font-size:0.82rem;" onclick="closeShortsCompleteModal()">
+        닫기
+      </button>
+    </div>
+
+    <!-- 영상 재생 플레이어 (브라우저 내 100% 즉시 감상) -->
+    <div style="background:#000; border-radius:10px; overflow:hidden; margin-bottom:14px; box-shadow:0 6px 18px rgba(0,0,0,0.18);">
+      <video id="shortsCompleteVideoPlayer" controls playsinline autoplay style="width:100%; max-height:48vh; display:block; object-fit:contain; background:#000;"></video>
+    </div>
+
+    <!-- 큼직한 모바일 최적화 공유 & 다운로드 버튼 -->
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <button type="button" class="action-btn btn-amber" id="btnShareVideo" style="padding:12px 18px; font-size:0.96rem; font-weight:700; display:flex; justify-content:center; align-items:center; gap:8px;" onclick="shareShortsVideo()">
+        <span>📲</span> <span>카카오톡 전송 / 갤러리 저장 (스마트폰 추천)</span>
+      </button>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <button type="button" class="action-btn btn-sky" style="padding:10px 14px; font-size:0.88rem;" onclick="downloadShortsVideoFile()">
+          💾 파일 다운로드
+        </button>
+        <button type="button" class="action-btn btn-outline" style="padding:10px 14px; font-size:0.88rem;" onclick="closeShortsCompleteModal()">
+          닫기
+        </button>
+      </div>
+    </div>
+
+    <div style="font-size:0.78rem; color:#78716C; margin-top:12px; line-height:1.45; text-align:center; background:#FAF8F4; padding:10px 12px; border-radius:6px; border:1px solid #E7E5E4;">
+      💡 <strong>스마트폰 안내:</strong> 폰에서 다운로드된 파일이 "지원하지 않는 형식"으로 표시될 경우,<br>
+      위의 <strong>[📲 카카오톡 전송 / 갤러리 저장]</strong> 버튼을 누르시면 카카오톡 및 폰 사진첩으로 바로 전송·저장됩니다.
     </div>
   </div>
 </div>
@@ -4356,6 +4408,10 @@ let shortsLastTick = 0;
 let shortsIsRecording = false;
 let customAudioBuffer = null;
 let customAudioFileUrl = null;
+let currentRenderedBlob = null;
+let currentRenderedUrl = null;
+let currentRenderedFilename = '';
+let currentRenderedMime = '';
 
 // 부서별 선생님 편지 추천 프리셋
 const TEACHER_PRESETS = {
@@ -6958,23 +7014,28 @@ function renderShortsSlotsUI() {
     };
 
     const thumbCanvas = document.createElement('canvas');
-    thumbCanvas.width = 116;
-    thumbCanvas.height = 152;
+    thumbCanvas.width = 80;
+    thumbCanvas.height = 106;
     thumbCanvas.className = 'slot-thumb';
+    thumbCanvas.style.width = '80px';
+    thumbCanvas.style.height = '106px';
+    thumbCanvas.style.flexShrink = '0';
+    thumbCanvas.style.borderRadius = '6px';
     const tctx = thumbCanvas.getContext('2d');
     const sw = slot.img.width || 720;
     const sh = slot.img.height || 960;
-    const sc = Math.max(116 / sw, 152 / sh);
-    tctx.drawImage(slot.img, (116 - sw * sc) / 2, (152 - sh * sc) / 2, sw * sc, sh * sc);
+    const sc = Math.max(80 / sw, 106 / sh);
+    tctx.drawImage(slot.img, (80 - sw * sc) / 2, (106 - sh * sc) / 2, sw * sc, sh * sc);
 
     const rightDiv = document.createElement('div');
     rightDiv.style.flex = '1';
+    rightDiv.style.minWidth = '0';
     rightDiv.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span style="font-size:0.78rem; font-weight:700; color:#44403C;">컷 ${idx + 1} · 장면 선택</span>
-        <span style="font-size:0.7rem; font-weight:600; color:#6E5434; background:#F3EFE6; padding:1px 7px; border-radius:4px; border:1px solid #D6C7B2;">무빙 · 안착</span>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; gap:6px;">
+        <span style="font-size:0.83rem; font-weight:700; color:#44403C; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">컷 ${idx + 1} · 장면 선택</span>
+        <span style="font-size:0.7rem; font-weight:600; color:#6E5434; background:#F3EFE6; padding:2px 7px; border-radius:4px; border:1px solid #D6C7B2; white-space:nowrap; flex-shrink:0;">무빙 · 안착</span>
       </div>
-      <input type="text" class="form-input" style="padding:6px 9px; font-size:0.83rem;" value="${(slot.caption || '').replace(/"/g, '&quot;')}" onfocus="jumpToShortsScene(${idx}, true)" oninput="updateSlotCaption(${idx}, this.value)">
+      <input type="text" class="form-input" style="padding:6px 9px; font-size:0.83rem; width:100%; box-sizing:border-box;" value="${(slot.caption || '').replace(/"/g, '&quot;')}" onfocus="jumpToShortsScene(${idx}, true)" oninput="updateSlotCaption(${idx}, this.value)">
     `;
     div.appendChild(thumbCanvas);
     div.appendChild(rightDiv);
@@ -7467,6 +7528,8 @@ function startShortsVideoExport(durationSec = shortsTargetDuration) {
   } catch (e) {}
 
   const mimeCandidates = [
+    'video/mp4;codecs=avc1,mp4a.40.2',
+    'video/mp4;codecs=avc1',
     'video/mp4',
     'video/webm;codecs=vp9,opus',
     'video/webm;codecs=vp8,opus',
@@ -7495,18 +7558,23 @@ function startShortsVideoExport(durationSec = shortsTargetDuration) {
       try { audioCtx.close(); } catch (e) {}
     }
     const blob = new Blob(chunks, { type: chosenMime || 'video/webm' });
-    const ext = (chosenMime && chosenMime.includes('mp4')) ? 'mp4' : 'webm';
+    const isMp4 = (chosenMime && chosenMime.includes('mp4')) || blob.type.includes('mp4');
+    const ext = isMp4 ? 'mp4' : 'webm';
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
     const dept = (document.getElementById('shortsDeptBadge').value || '우리반').replace(/[^가-힣a-zA-Z0-9]/g, '_');
-    a.href = url;
-    a.download = `우리반_${dept}_우리들영상_${durationSec}초.${ext}`;
-    a.click();
+    const filename = `우리반_${dept}_우리들영상_${durationSec}초.${ext}`;
 
-    statusEl.textContent = `✅ 완성! [우리반_${dept}_우리들영상_${durationSec}초.${ext}] 파일이 다운로드되었습니다!`;
+    currentRenderedBlob = blob;
+    currentRenderedUrl = url;
+    currentRenderedFilename = filename;
+    currentRenderedMime = chosenMime || blob.type || (isMp4 ? 'video/mp4' : 'video/webm');
+
+    statusEl.textContent = `✅ 완성! [${filename}] 영상이 준비되었습니다!`;
     pctEl.textContent = '100%';
     barEl.style.width = '100%';
-    showToast(`🎉 ${durationSec}초 우리들 영상 파일이 성공적으로 저장되었습니다!`);
+
+    // 🌟 완성 영상 모달 팝업 열기 (인앱 플레이어로 100% 즉시 감상 & 카카오톡/스마트폰 원클릭 공유)
+    openShortsCompleteModal(url, filename, durationSec);
   };
 
   recorder.start(200);
@@ -7526,6 +7594,78 @@ function startShortsVideoExport(durationSec = shortsTargetDuration) {
     requestAnimationFrame(renderLoop);
   };
   requestAnimationFrame(renderLoop);
+}
+
+function openShortsCompleteModal(url, filename, durationSec) {
+  const modal = document.getElementById('shortsCompleteModal');
+  const player = document.getElementById('shortsCompleteVideoPlayer');
+  const titleEl = document.getElementById('completeModalTitle');
+  if (!modal || !player) return;
+
+  if (titleEl) {
+    titleEl.textContent = `우리 반 ${durationSec}초 추억 영상이 완성되었습니다!`;
+  }
+  player.src = url;
+  player.load();
+  player.play().catch(() => {});
+
+  modal.classList.add('show');
+  showToast(`🎉 영상 생성이 완료되었습니다! 화면에서 확인 및 저장하실 수 있습니다.`);
+}
+
+function closeShortsCompleteModal() {
+  const modal = document.getElementById('shortsCompleteModal');
+  const player = document.getElementById('shortsCompleteVideoPlayer');
+  if (player) {
+    player.pause();
+    player.removeAttribute('src');
+  }
+  if (modal) modal.classList.remove('show');
+}
+
+function handleShortsCompleteModalBackdrop(e) {
+  if (e.target && e.target.id === 'shortsCompleteModal') {
+    closeShortsCompleteModal();
+  }
+}
+
+async function shareShortsVideo() {
+  if (!currentRenderedBlob) {
+    showToast('공유할 영상 파일이 없습니다.');
+    return;
+  }
+
+  const file = new File([currentRenderedBlob], currentRenderedFilename || '우리반_추억영상.mp4', {
+    type: currentRenderedMime || 'video/mp4'
+  });
+
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: '우리 반 추억 영상',
+        text: '말씀 안에서 자라가는 우리 반의 은혜로운 추억 영상입니다.'
+      });
+      showToast('🎉 카카오톡/스마트폰 공유가 완료되었습니다!');
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        downloadShortsVideoFile();
+      }
+    }
+  } else {
+    downloadShortsVideoFile();
+  }
+}
+
+function downloadShortsVideoFile() {
+  if (!currentRenderedUrl) return;
+  const a = document.createElement('a');
+  a.href = currentRenderedUrl;
+  a.download = currentRenderedFilename || '우리반_추억영상.mp4';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  showToast(`💾 [${currentRenderedFilename}] 파일 다운로드가 시작되었습니다!`);
 }
 
 // URL 해시(#view?w=1&d=elem 또는 #card=...)로 공유된 모바일 알림장 자동 복원 및 ?mode=line&cut=N 파라미터 지원
