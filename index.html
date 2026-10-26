@@ -999,7 +999,8 @@
     justify-content: center;
     padding: 20px;
   }
-  .video-modal-backdrop.open {
+  .video-modal-backdrop.open,
+  .video-modal-backdrop.show {
     display: flex;
   }
   .video-modal-card {
@@ -1010,6 +1011,9 @@
     width: 100%;
     padding: 22px 26px;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    max-height: 92vh;
+    overflow-y: auto;
+    box-sizing: border-box;
   }
   .video-modal-header {
     display: flex;
@@ -1038,6 +1042,13 @@
 
   /* 모바일 스마트폰 특화 최적화 */
   @media (max-width: 900px) {
+    .video-modal-backdrop {
+      padding: 10px !important;
+    }
+    .video-modal-card {
+      padding: 16px 14px !important;
+      max-height: 94vh !important;
+    }
     .top-header {
       position: relative !important;
       top: auto !important;
@@ -7730,6 +7741,7 @@ function openShortsCompleteModal(url, filename, durationSec) {
   player.load();
   player.play().catch(() => {});
 
+  modal.classList.add('open');
   modal.classList.add('show');
   showToast(`🎉 영상 제작이 완료되었습니다! 폰에서는 영상을 꾹 누르시거나 [카카오톡 전송]을 이용해 보세요.`);
 }
@@ -7741,7 +7753,10 @@ function closeShortsCompleteModal() {
     player.pause();
     player.removeAttribute('src');
   }
-  if (modal) modal.classList.remove('show');
+  if (modal) {
+    modal.classList.remove('open');
+    modal.classList.remove('show');
+  }
 }
 
 function handleShortsCompleteModalBackdrop(e) {
